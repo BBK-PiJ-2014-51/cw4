@@ -11,8 +11,23 @@ public class ContactManagerTest {
 	private ContactManager cm = new ContactManagerImpl();
 
 	/*
-	 Add / get meeting tests
+	 Add / get future and past meetings
 	 */
+	
+	@Test
+	public void getMeeting() {
+		//to do add meeting and get it back
+	}
+	
+	@Test
+	public void getValidFutureMeeting() {
+		//to do add meeting and get it back
+	}
+	
+	@Test
+	public void getValidPastMeeting() {
+		//to do add meeting and get it back
+	}
 	
 	@Test
 	public void addFutureMeetingWithPastDate() {
@@ -37,20 +52,6 @@ public class ContactManagerTest {
 	@Test
 	public void addPastMeetingWithNullArgument() {
 		//to do add past meeting with null parameter, expects null pointer ex
-	}
-	
-	@Test
-	public void getMeeting() {
-		//to do add meeting and get it back
-	}
-	
-	@Test
-	public void getValidFutureMeeting() {
-		//to do add meeting and get it back
-	}
-	@Test
-	public void getValidPastMeeting() {
-		//to do add meeting and get it back
 	}
 	
 	@Test
@@ -81,10 +82,111 @@ public class ContactManagerTest {
 	/*
 	 * get meeting lists
 	 */
+	@Test
+	public void getFutureMeetingListByContact() {
+		//to do get list back
+	}
+	
+	@Test
+	public void getFutureMeetingListByDate() {
+		//to do get list back
+	}
+	
+	@Test
+	public void getFutureMeetingListEmptyIfNone(){
+		// get empty list back
+	}
+	
+	@Test
+	public void getFutureMeetingListIsChronological(){
+		// make sure list is sorted
+	}
+	
+	@Test
+	public void getFutureMeetingListNoDuplicates(){
+		
+	}
+	
+	@Test
+	public void getFutureMeetingListByNullContact(){
+		
+	}
+	
+	@Test
+	public void getPastMeetingListByContact() {
+		//to do get list back
+	}
+	
+	@Test
+	public void getPastMeetingListByDate() {
+		//to do get list back
+	}
+	
+	@Test
+	public void getPastMeetingListEmptyIfNone(){
+		// get empty list back
+	}
+	
+	@Test
+	public void getPastMeetingListIsChronological(){
+		// make sure list is sorted
+	}
+	
+	@Test
+	public void getPastMeetingListNoDuplicates(){
+		
+	}
+	
+	@Test
+	public void getPastMeetingListByNullContact(){
+		
+	}
 	
 	/*
 	 * Contacts, notes, flush tests
 	 */
+	@Test
+	public void getPastMeetingNotes(){
+		//get notes back
+	}
 	
+	@Test
+	public void getPastMeetingNotesThorwsIllegalArguementIfNotExist(){
+		//get notes back
+	}
+	
+	@Test
+	public void getPastMeetingNotesTrhowsIllegalStateIfFuture(){
+		//get notes back
+	}
+	
+	@Test
+	public void getPastMeetingNotesThrowsNpIfNull(){
+		//get notes back
+	}
 
+	@Test
+	public void getContactListByIds(){
+		//get contact back
+	}
+	
+	@Test
+	public void addContactThrowsNpIfNull(){
+		
+	}
+	
+	@Test
+	public void getContactListByName(){
+		///get contacts back
+	}
+	
+	@Test
+	public void getContactListIllegalArgIfAnyNotFound(){
+		
+	}
+	
+	@Test
+	public void flush(){
+		//save and restore state
+	}
 }
