@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import impl.ContactImpl;
 import impl.ContactManagerImpl;
 import interfaces.Contact;
 import interfaces.ContactManager;
@@ -20,11 +21,18 @@ import interfaces.PastMeeting;
 
 import org.junit.Before;
 import org.junit.Test;
-
+/**
+ * Contact Manager Tests
+ * @author caleb
+ *
+ * All test cases are named as such: <Scope of test>_<Context tested>_<Expected Result>
+ * e.g. testing a method named computeTotal with a null parameter, expecting an illegal argument exception
+ * could be named computeTotal_nullParam_throwIllArgEx
+ */
 public class ContactManagerTest {
 
-	private static final Calendar PAST_TEST_DATE = new GregorianCalendar(2015, Month.JANUARY.getValue(), 1);
-	private static final Calendar FUTURE_TEST_DATE = new GregorianCalendar(2016, Month.JANUARY.getValue(), 1);
+	private static final Calendar PAST_TEST_DATE = new GregorianCalendar(2015, Month.JANUARY.getValue(), 1, 12, 0);
+	private static final Calendar FUTURE_TEST_DATE = new GregorianCalendar(2016, Month.JANUARY.getValue(), 1, 12, 0);
 	private static final String TEST_MEETING_NOTES = "Some test meeting notes";
 	
 	private ContactManager cm = new ContactManagerImpl();
@@ -156,44 +164,129 @@ public class ContactManagerTest {
 	 * get meeting lists
 	 */
 	@Test
-	public void getFutureMeetingListByContact() {
-		//to do get list back
+	public void getFutureMeetingList_validContactParam_returnCorrectSizeList() {
+		loadTestContacts();
+		Set<Contact> contacts = getContactList(5);
+		
+		int numMeetings = 3;
+		for (int i = 0; i < numMeetings; i++){
+			cm.addFutureMeeting(contacts, FUTURE_TEST_DATE);
+		}
+		Contact[] contactsArray = (Contact[]) contacts.toArray();
+		
+		contacts.remove(contactsArray[0]);
+		for (int i = 0; i < numMeetings; i++){
+			cm.addFutureMeeting(contacts, FUTURE_TEST_DATE);
+		}
+		
+		List<Meeting> returnedMeetings = cm.getFutureMeetingList(contactsArray[0]);
+		assertEquals(numMeetings, returnedMeetings.size());
 	}
 	
 	@Test
-	public void getFutureMeetingListByDate() {
-		//to do get list back
+	public void getFutureMeetingList_validDateParam_returnCorrectSizeList() {
+		loadTestContacts();
+		Set<Contact> contacts = getContactList(5);
+		
+		int numMeetings = 3;
+		for (int i = 0; i < numMeetings; i++){
+			cm.addFutureMeeting(contacts, FUTURE_TEST_DATE);
+		}
+		
+		Calendar addDate = FUTURE_TEST_DATE;
+		for (int i = 0; i < numMeetings; i++){
+			addDate.add(Calendar.DAY_OF_MONTH, i);
+			cm.addFutureMeeting(contacts, addDate);
+		}
+		
+		List<Meeting> returnedMeetings = cm.getFutureMeetingList(FUTURE_TEST_DATE);
+		assertEquals(numMeetings, returnedMeetings.size());
 	}
 	
 	@Test
-	public void getFutureMeetingListEmptyIfNone(){
-		// get empty list back
+	public void getFutureMeetingList_contactWithoutMeetingsParam_returnEmptyList(){
+		loadTestContacts();
+		Set<Contact> contacts = getContactList(2);
+		Contact[] contactsArray = (Contact[]) contacts.toArray();
+		List<Meeting> returnedMeetings = cm.getFutureMeetingList(contactsArray[0]);
+		assertEquals(true, returnedMeetings.isEmpty());
 	}
 	
 	@Test
-	public void getFutureMeetingListIsChronological(){
-		// make sure list is sorted
+	public void getFutureMeetingList_dateWithoutMeetingsParam_returnEmptyList(){
+		List<Meeting> returnedMeetings = cm.getFutureMeetingList(FUTURE_TEST_DATE);
+		assertEquals(true, returnedMeetings.isEmpty());
 	}
 	
 	@Test
-	public void getFutureMeetingListNoDuplicates(){
+	public void getFutureMeetingList_validInput_returnedChronologically(){
+		loadTestContacts();
+		Set<Contact> contacts = getContactList(5);
+		int numMeetings = 3;
+		Calendar addDate = FUTURE_TEST_DATE;
+		for (int i = 0; i < numMeetings; i++){
+			addDate.add(Calendar.DAY_OF_MONTH, 1);
+			cm.addFutureMeeting(contacts, addDate);
+		}
+		Contact[] contactsArray = (Contact[]) contacts.toArray();
+		List<Meeting> returnedMeetings = cm.getFutureMeetingList(contactsArray[0]);
+		boolean isChronological = true;
+		for (int i = 0; i < returnedMeetings.size() - 1; i++){
+			if (returnedMeetings.get(i).getDate().after(returnedMeetings.get(i + 1).getDate())){
+				isChronological = false;
+			}
+		}
+		assertEquals(true, isChronological);
+	}
+	
+	@Test
+	public void getFutureMeetingList_getByDate_returnNoDuplicates(){
+		loadTestContacts();
+		Set<Contact> contacts = getContactList(5);
+		
+		int numMeetings = 3;
+		for (int i = 0; i < numMeetings; i++){
+			cm.addFutureMeeting(contacts, FUTURE_TEST_DATE);
+		}
+		
+		List<Meeting> returnedMeetings = cm.getFutureMeetingList(FUTURE_TEST_DATE);
+		assertEquals(numMeetings, returnedMeetings.size());
+	}
+	
+	@Test
+	public void getFutureMeetingList_getByContact_returnNoDuplicates(){
+		loadTestContacts();
+		Set<Contact> contacts = getContactList(5);
+		
+		int numMeetings = 3;
+		for (int i = 0; i < numMeetings; i++){
+			cm.addFutureMeeting(contacts, FUTURE_TEST_DATE);
+		}
+		Contact[] contactsArray = (Contact[]) contacts.toArray();
+		List<Meeting> returnedMeetings = cm.getFutureMeetingList(contactsArray[0]);
+		assertEquals(numMeetings, returnedMeetings.size());
+	}
+	
+	@Test
+	public void getFutureMeetingListByUnknownContact(){
 		
 	}
 	
 	@Test
-	public void getFutureMeetingListByNullContact(){
+	public void getFutureMeetingListByNullParam(){
 		
+	}
+	
+	@Test
+	public void getFutureMeetingListByPastDate(){
+		// TODO this should return past meetings as well.
 	}
 	
 	@Test
 	public void getPastMeetingListByContact() {
 		//to do get list back
 	}
-	
-	@Test
-	public void getPastMeetingListByDate() {
-		//to do get list back
-	}
+
 	
 	@Test
 	public void getPastMeetingListEmptyIfNone(){
@@ -265,7 +358,7 @@ public class ContactManagerTest {
 	
 	
 	/*
-	 * Private methods
+	 * Private helper methods
 	 */
 	/**
 	 * loads some contact name and notes from TestContacts enum class into contact manager instance
@@ -284,13 +377,14 @@ public class ContactManagerTest {
 	 */
 	private Set<Contact> getContactList(int numContacts){
 		Set<Contact> contactList = null;
-		if (numContacts < 0 || numContacts > TestContacts.values().length )
-			return contactList;
-		TestContacts[] testContacts = TestContacts.values();
-		for (int i = 0; i < numContacts; i++){
-			contactList.add(new ContactImpl(testContacts[i].toString(), testContacts[i].getNotes()));
+		if (numContacts > 0 && numContacts <= TestContacts.values().length ){
+			TestContacts[] testContacts = TestContacts.values();
+			contactList = new TreeSet<Contact>();
+			for (int i = 0; i < numContacts; i++){
+				contactList.add(new ContactImpl(testContacts[i].toString(), testContacts[i].getNotes()));
+			}
 		}
-		
+		return contactList;
 	}
 	
 }
