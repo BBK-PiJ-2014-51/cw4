@@ -16,26 +16,22 @@ public class ContactImpl implements Contact {
 
 	@Override
 	public int getId() {
-		// TODO Auto-generated method stub
-		return 0;
+		return id;
 	}
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+		return name;
 	}
 
 	@Override
 	public String getNotes() {
-		// TODO Auto-generated method stub
-		return null;
+		return notes;
 	}
 
 	@Override
 	public void addNotes(String note) {
-		// TODO Auto-generated method stub
-
+		notes = (notes.isEmpty()) ? note : String.format("%s\n%s", notes, note);	
 	}
 
 }
