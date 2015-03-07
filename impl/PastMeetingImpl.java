@@ -7,34 +7,36 @@ import interfaces.Contact;
 import interfaces.PastMeeting;
 
 public class PastMeetingImpl implements PastMeeting {
-
-	public PastMeetingImpl(int tEST_ID, Calendar testDate,
-			Set<Contact> contacts, String testNotes) {
-		// TODO Auto-generated constructor stub
+	private int id;
+	private Calendar date;
+	private Set<Contact> contacts;
+	private String notes;
+	
+	public PastMeetingImpl(int id, Calendar date,
+			Set<Contact> contacts, String notes) {
+		this.id = id;
+		this.date = date;
+		this.contacts = contacts;
+		this.notes = notes;
 	}
 
 	@Override
 	public int getId() {
-		// TODO Auto-generated method stub
-		return 0;
+		return id;
 	}
 
 	@Override
 	public Calendar getDate() {
-		// TODO Auto-generated method stub
-		return null;
+		return date;
 	}
 
 	@Override
 	public Set<Contact> getContacts() {
-		// TODO Auto-generated method stub
-		return null;
+		return contacts;
 	}
 
 	@Override
 	public String getNotes() {
-		// TODO Auto-generated method stub
-		return null;
+		return notes;
 	}
-
 }

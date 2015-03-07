@@ -20,7 +20,7 @@ public class PastMeetingTest {
 	
 	private static int TEST_ID = 5;
 	private static final String TEST_NOTES = "test notes";
-	private static final Calendar TEST_DATE = new GregorianCalendar(2015, 06, 15);
+	private static final Calendar TEST_DATE = new GregorianCalendar(2014, 06, 15);
 	private Set<Contact> contacts;
 	private PastMeeting pm;
 	
