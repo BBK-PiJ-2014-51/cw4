@@ -53,8 +53,11 @@ public class ContactManagerTest {
 	
 	@Test
 	public void getMeeting_unfoundMeetingParam_ReturnNull() {
-		Meeting meeting = cm.getMeeting(1);
-		assertEquals(null, meeting);
+		loadTestContacts();
+		Meeting unfoundMeeting = cm.getMeeting(1);
+		Set<Contact> contacts = getContactList(TestContacts.values().length / 2);		
+		Meeting foundMeeting = cm.getMeeting(cm.addFutureMeeting(contacts, FUTURE_TEST_DATE));
+		assertEquals(true, unfoundMeeting == null && foundMeeting != null);
 	}
 	
 	@Test
@@ -93,8 +96,11 @@ public class ContactManagerTest {
 	
 	@Test
 	public void getFutureMeeting_unfoundMeetingParam_ReturnNull() {
-		FutureMeeting meeting = cm.getFutureMeeting(1);
-		assertEquals(null, meeting);
+		loadTestContacts();
+		FutureMeeting unfoundMeeting = cm.getFutureMeeting(1);
+		Set<Contact> contacts = getContactList(TestContacts.values().length / 2);		
+		FutureMeeting foundMeeting = cm.getFutureMeeting(cm.addFutureMeeting(contacts, FUTURE_TEST_DATE));
+		assertEquals(true, unfoundMeeting == null && foundMeeting != null);
 	}
 
 	@Test
@@ -156,8 +162,18 @@ public class ContactManagerTest {
 	
 	@Test
 	public void getPastMeeting_unfoundMeetingParam_ReturnNull() {
-		PastMeeting meeting = cm.getPastMeeting(1);
-		assertEquals(null, meeting);
+		loadTestContacts();
+		PastMeeting unfoundMeeting = cm.getPastMeeting(1);
+		Set<Contact> contactList = getContactList(TestContacts.values().length / 2);
+		//get the first contact added
+		Object[] contactArray = contactList.toArray();
+		Contact firstContact = (Contact) contactArray[0]; 
+		
+		// get the only meeting from contact manager
+		cm.addNewPastMeeting(contactList, PAST_TEST_DATE, TEST_MEETING_NOTES);
+		int meetingId = cm.getPastMeetingList(firstContact).get(0).getId();
+		PastMeeting foundMeeting = cm.getPastMeeting(meetingId);
+		assertEquals(true, unfoundMeeting == null && foundMeeting != null);
 	}
 	
 	/*
@@ -582,7 +598,7 @@ public class ContactManagerTest {
 			TestContacts[] testContacts = TestContacts.values();
 			contactList = new TreeSet<Contact>();
 			for (int i = 0; i < numContacts; i++){
-				contactList.add(new ContactImpl(testContacts[i].toString(), testContacts[i].getNotes()));
+				contactList.add(new ContactImpl(i, testContacts[i].toString(), testContacts[i].getNotes()));
 			}
 		}
 		return contactList;
