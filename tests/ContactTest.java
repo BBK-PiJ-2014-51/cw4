@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import impl.ContactImpl;
 import interfaces.Contact;
 
 public class ContactTest {
@@ -35,7 +36,7 @@ public class ContactTest {
 	
 	@Test
 	public void addContactNotes() {
-		contact = new ContactImpl(TEST_ID, TEST_NAME);
+		contact = new ContactImpl(TEST_ID, TEST_NAME, "");
 		contact.addNotes(TEST_NOTES);
 		assertEquals(true, TEST_NOTES.equals(contact.getNotes()));
 	}
