@@ -38,11 +38,10 @@ public class ContactManagerTest {
 	private ContactManager cm = new ContactManagerImpl();
 
 	/*
-	 Add / get future and past meetings
+	 * getMeeting
 	 */
-	
 	@Test
-	public void addGetMeeting_validInput_returnMeeting() {
+	public void getMeeting_validInput_returnMeeting() {
 		loadTestContacts();
 		Set<Contact> contactList = getContactList(TestContacts.values().length / 2);		
 		Meeting meeting = cm.getMeeting(cm.addFutureMeeting(contactList, FUTURE_TEST_DATE ));
@@ -52,16 +51,35 @@ public class ContactManagerTest {
 	}
 	
 	@Test
-	public void getMeeting_unfoundMeetingParam_ReturnNull() {
+	public void getMeeting_unfoundMeetingParam_returnNull() {
 		loadTestContacts();
 		Meeting unfoundMeeting = cm.getMeeting(1);
 		Set<Contact> contacts = getContactList(TestContacts.values().length / 2);		
 		Meeting foundMeeting = cm.getMeeting(cm.addFutureMeeting(contacts, FUTURE_TEST_DATE));
 		assertEquals(true, unfoundMeeting == null && foundMeeting != null);
 	}
+	/*
+	 * addFutureMeeting
+	 */
 	
+	@Test (expected = IllegalArgumentException.class)
+	public void addFutureMeeting_pastDateParam_throwIllArgEx() {
+		loadTestContacts();
+		Set<Contact> contactList = getContactList(TestContacts.values().length / 2);		
+		cm.addFutureMeeting(contactList, PAST_TEST_DATE );
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void addFutureMeeting_unknownContactParam_throwIllArgEx() {
+		Set<Contact> contactList = getContactList(TestContacts.values().length / 2);		
+		cm.addFutureMeeting(contactList, FUTURE_TEST_DATE );
+	}
+	
+	/*
+	 * getFutureMeeting
+	 */
 	@Test
-	public void addGetFutureMeeting_validInput_returnMeeting() {
+	public void getFutureMeeting_validInput_returnMeeting() {
 		loadTestContacts();
 		Set<Contact> contactList = getContactList(TestContacts.values().length / 2);		
 		FutureMeeting meeting = cm.getFutureMeeting(cm.addFutureMeeting(contactList, FUTURE_TEST_DATE ));
@@ -71,20 +89,7 @@ public class ContactManagerTest {
 	}
 	
 	@Test (expected = IllegalArgumentException.class)
-	public void addFutureMeeting_PastDateParam_ThrowIllArgEx() {
-		loadTestContacts();
-		Set<Contact> contactList = getContactList(TestContacts.values().length / 2);		
-		cm.addFutureMeeting(contactList, PAST_TEST_DATE );
-	}
-	
-	@Test (expected = IllegalArgumentException.class)
-	public void addFutureMeeting_UnknownContactParam_ThrowIllArgEx() {
-		Set<Contact> contactList = getContactList(TestContacts.values().length / 2);		
-		cm.addFutureMeeting(contactList, FUTURE_TEST_DATE );
-	}
-	
-	@Test (expected = IllegalArgumentException.class)
-	public void getFutureMeeting_PastMeetingId_ThrowIllArgEx() {
+	public void getFutureMeeting_pastMeetingId_throwIllArgEx() {
 		loadTestContacts();
 		Set<Contact> contactList = getContactList(TestContacts.values().length / 2);
 		cm.addNewPastMeeting(contactList, PAST_TEST_DATE, TEST_MEETING_NOTES);
@@ -95,7 +100,7 @@ public class ContactManagerTest {
 	}
 	
 	@Test
-	public void getFutureMeeting_unfoundMeetingParam_ReturnNull() {
+	public void getFutureMeeting_unfoundMeetingParam_returnNull() {
 		loadTestContacts();
 		FutureMeeting unfoundMeeting = cm.getFutureMeeting(1);
 		Set<Contact> contacts = getContactList(TestContacts.values().length / 2);		
@@ -103,8 +108,46 @@ public class ContactManagerTest {
 		assertEquals(true, unfoundMeeting == null && foundMeeting != null);
 	}
 
+	
+	/*
+	 * addNewPastMeeting
+	 */
+	@Test (expected = IllegalArgumentException.class)
+	public void addNewPastMeeting_emptyContactParam_throwIllArgEx() {
+		Set<Contact> contactList = new TreeSet<Contact>();
+		cm.addNewPastMeeting(contactList, PAST_TEST_DATE, TEST_MEETING_NOTES);
+	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void addNewPastMeeting_unknownContactParam_throwIllArgEx() {
+		Set<Contact> contactList = getContactList(TestContacts.values().length / 2);
+		cm.addNewPastMeeting(contactList, PAST_TEST_DATE, TEST_MEETING_NOTES);
+	}
+	
+	@Test (expected = NullPointerException.class)
+	public void addNewPastMeeting_nullFirstParam_throwNullPntrEx() {
+		cm.addNewPastMeeting(null, PAST_TEST_DATE, TEST_MEETING_NOTES);
+	}
+	
+	@Test (expected = NullPointerException.class)
+	public void addNewPastMeeting_nullSecondParam_throwNullPntrEx() {
+		loadTestContacts();
+		Set<Contact> contactList = getContactList(TestContacts.values().length / 2);
+		cm.addNewPastMeeting(contactList, null, TEST_MEETING_NOTES);
+	}
+	
+	@Test (expected = NullPointerException.class)
+	public void addNewPastMeeting_nullThirdParam_throwNullPntrEx() {
+		loadTestContacts();
+		Set<Contact> contactList = getContactList(TestContacts.values().length / 2);
+		cm.addNewPastMeeting(contactList, PAST_TEST_DATE, null);
+	}
+	
+	/*
+	 * getPastMeeting
+	 */
 	@Test
-	public void addGetPastMeeting_validInput_returnMeeting() {
+	public void getPastMeeting_validInput_returnMeeting() {
 		loadTestContacts();
 		Set<Contact> contactList = getContactList(TestContacts.values().length / 2);
 		//get the first contact added
@@ -123,37 +166,6 @@ public class ContactManagerTest {
 	}
 	
 	@Test (expected = IllegalArgumentException.class)
-	public void addPastMeeting_EmptyContactParam_ThrowIllArgEx() {
-		Set<Contact> contactList = new TreeSet<Contact>();
-		cm.addNewPastMeeting(contactList, PAST_TEST_DATE, TEST_MEETING_NOTES);
-	}
-	
-	@Test (expected = IllegalArgumentException.class)
-	public void addPastMeeting_UnknownContactParam_ThrowIllArgEx() {
-		Set<Contact> contactList = getContactList(TestContacts.values().length / 2);
-		cm.addNewPastMeeting(contactList, PAST_TEST_DATE, TEST_MEETING_NOTES);
-	}
-	
-	@Test (expected = NullPointerException.class)
-	public void addPastMeeting_NullFirstParam_ThrowNullPntrEx() {
-		cm.addNewPastMeeting(null, PAST_TEST_DATE, TEST_MEETING_NOTES);
-	}
-	
-	@Test (expected = NullPointerException.class)
-	public void addPastMeeting_NullSecondParam_ThrowNullPntrEx() {
-		loadTestContacts();
-		Set<Contact> contactList = getContactList(TestContacts.values().length / 2);
-		cm.addNewPastMeeting(contactList, null, TEST_MEETING_NOTES);
-	}
-	
-	@Test (expected = NullPointerException.class)
-	public void addPastMeeting_NullThirdParam_ThrowNullPntrEx() {
-		loadTestContacts();
-		Set<Contact> contactList = getContactList(TestContacts.values().length / 2);
-		cm.addNewPastMeeting(contactList, PAST_TEST_DATE, null);
-	}
-	
-	@Test (expected = IllegalArgumentException.class)
 	public void getPastMeeting_FutureIdParam_IllArgEx() {
 		loadTestContacts();
 		Set<Contact> contactList = getContactList(TestContacts.values().length / 2);		
@@ -161,7 +173,7 @@ public class ContactManagerTest {
 	}
 	
 	@Test
-	public void getPastMeeting_unfoundMeetingParam_ReturnNull() {
+	public void getPastMeeting_unfoundMeetingParam_returnNull() {
 		loadTestContacts();
 		PastMeeting unfoundMeeting = cm.getPastMeeting(1);
 		Set<Contact> contactList = getContactList(TestContacts.values().length / 2);
@@ -177,7 +189,7 @@ public class ContactManagerTest {
 	}
 	
 	/*
-	 * get meeting lists
+	 * getFutureMeetingList
 	 */
 	@Test
 	public void getFutureMeetingList_validContactParam_returnList() {
@@ -381,6 +393,30 @@ public class ContactManagerTest {
 	}
 	
 	@Test
+	public void getFutureMeetingList_validPastDate_returnedChronologically(){
+		loadTestContacts();
+		Set<Contact> contacts = getContactList(5);
+		int numMeetings = 3;
+		Calendar addDate = PAST_TEST_DATE;
+		for (int i = 0; i < numMeetings; i++){
+			addDate.add(Calendar.HOUR_OF_DAY, 2);
+			cm.addNewPastMeeting(contacts, addDate, TEST_MEETING_NOTES);
+		}
+		List<Meeting> returnedMeetings = cm.getFutureMeetingList(PAST_TEST_DATE);
+		boolean isChronological = true;
+		for (int i = 0; i < returnedMeetings.size() - 1; i++){
+			if (returnedMeetings.get(i).getDate().after(returnedMeetings.get(i + 1).getDate())){
+				isChronological = false;
+			}
+		}
+		assertEquals(true, isChronological);
+	}
+	
+	/*
+	 * getPastMeetingList
+	 */
+	
+	@Test
 	public void getPastMeetingList_validContactParam_returnList() {
 		loadTestContacts();
 		Set<Contact> contacts = getContactList(5);
@@ -437,26 +473,6 @@ public class ContactManagerTest {
 	}
 	
 	@Test
-	public void getFutureMeetingList_validPastDate_returnedChronologically(){
-		loadTestContacts();
-		Set<Contact> contacts = getContactList(5);
-		int numMeetings = 3;
-		Calendar addDate = PAST_TEST_DATE;
-		for (int i = 0; i < numMeetings; i++){
-			addDate.add(Calendar.HOUR_OF_DAY, 2);
-			cm.addNewPastMeeting(contacts, addDate, TEST_MEETING_NOTES);
-		}
-		List<Meeting> returnedMeetings = cm.getFutureMeetingList(PAST_TEST_DATE);
-		boolean isChronological = true;
-		for (int i = 0; i < returnedMeetings.size() - 1; i++){
-			if (returnedMeetings.get(i).getDate().after(returnedMeetings.get(i + 1).getDate())){
-				isChronological = false;
-			}
-		}
-		assertEquals(true, isChronological);
-	}
-	
-	@Test
 	public void getPastMeetingList_validContact_returnNoDuplicates(){
 		loadTestContacts();
 		Set<Contact> contacts = getContactList(5);
@@ -490,82 +506,101 @@ public class ContactManagerTest {
 	}
 	
 	/*
-	 * Contacts, notes, flush tests
+	 * addMeetingNotes
 	 */
 	@Test
 	public void addMeetingNotes_addNotesPastMeeting_getAddedNotesBack(){
 		loadTestContacts();
+		Set<Contact> contactList = getContactList(TestContacts.values().length / 2);
+		//get the first contact added
+		Object[] contactArray = contactList.toArray();
+		Contact firstContact = (Contact) contactArray[0]; 
 		
-		fail();
+		// get the only meeting from contact manager
+		cm.addNewPastMeeting(contactList, PAST_TEST_DATE, TEST_MEETING_NOTES);
+		int meetingId = cm.getPastMeetingList(firstContact).get(0).getId();
+		PastMeeting meeting = cm.getPastMeeting(meetingId);
+		cm.addMeetingNotes(meeting.getId(), TEST_MEETING_NOTES);
+		assertEquals(String.format("%s\n%s", TEST_MEETING_NOTES, TEST_MEETING_NOTES), meeting.getNotes());
 	}
 	
 	@Test
 	public void addMeetingNotes_addNotesFutureMeeting_getPastMeetingBack(){
+		// TODO change system date?
 		loadTestContacts();
-		
-		fail();
+		Set<Contact> contactList = getContactList(TestContacts.values().length / 2);
+		int id = cm.addFutureMeeting(contactList, FUTURE_TEST_DATE);
+		cm.addMeetingNotes(id, TEST_MEETING_NOTES);
+		PastMeeting meeting = cm.getPastMeeting(id);
+		assertEquals(TEST_MEETING_NOTES, meeting.getNotes());
 	}
 	
-	@Test
-	public void addMeetingNotes_nullNotesParam_throwNullPointerEx(){
+	@Test (expected = NullPointerException.class)
+	public void addMeetingNotes_nullNotesParam_throwNullPtrEx(){
 		loadTestContacts();
-		
-		fail();
+		Set<Contact> contactList = getContactList(TestContacts.values().length / 2);
+		int id = cm.addFutureMeeting(contactList, FUTURE_TEST_DATE);
+		cm.addMeetingNotes(id, null);
 	}
 	
-	@Test
-	public void addMeetingNotes_emptyNotesParam_throwIllArgEx(){
-		loadTestContacts();
-		
-		fail();
-	}
 	
-	@Test
+	@Test (expected = IllegalStateException.class)
 	public void addMeetingNotes_dateInFuture_throwIllStateEx(){
 		loadTestContacts();
-		
-		fail();
+		Set<Contact> contactList = getContactList(TestContacts.values().length / 2);
+		int id = cm.addFutureMeeting(contactList, FUTURE_TEST_DATE);
+		cm.addMeetingNotes(id, TEST_MEETING_NOTES);
 	}
 	
-	@Test
-	public void getPastMeetingNotesThorwsIllegalArguementIfNotExist(){
-		//get notes back
-		fail();
+	@Test (expected = IllegalArgumentException.class)
+	public void addMeetingNotes_meetingDoesntExist_throwsIllArgEx(){
+		cm.addMeetingNotes(5, TEST_MEETING_NOTES);
 	}
 	
-	@Test
-	public void getPastMeetingNotesThrowsIllegalStateIfFuture(){
-		//get notes back
-		fail();
+	/*
+	 * addNewContact
+	 */
+	@Test (expected = NullPointerException.class)
+	public void addNewContact_nullName_throwNullPtrEx(){
+		cm.addNewContact(null, TEST_MEETING_NOTES);
 	}
 	
-	@Test
-	public void getPastMeetingNotesThrowsNpIfNull(){
-		//get notes back
-		fail();
-	}
-
-	@Test
-	public void getContactListByIds(){
-		//get contact back
-		fail();
+	@Test (expected = NullPointerException.class)
+	public void addNewContact_nullNotes_throwNullPtrEx(){
+		cm.addNewContact(TEST_MEETING_NOTES, null);
 	}
 	
-	@Test
-	public void addContactThrowsNpIfNull(){
-		fail();
-	}
+	/*
+	 * getContacts
+	 */
 	
 	@Test
-	public void getContactListByName(){
-		///get contacts back
-		fail();
+	public void getContacts_validIntIdVarArg_returnSet(){
+		loadTestContacts();
+		Set<Contact> contacts = cm.getContacts(0,1,2);
+		assertEquals(3, contacts.size());
+	} 
+	@Test
+	public void getContacts_commonNameSubstring_returnAsscContacts(){
+		cm.addNewContact("Joe Johnson", TEST_MEETING_NOTES);
+		cm.addNewContact("Joe Jacobson", TEST_MEETING_NOTES);
+		Set<Contact> contacts = cm.getContacts("Joe");
+		assertEquals (2, contacts.size());
 	}
 	
-	@Test
-	public void getContactListIllegalArgIfAnyNotFound(){
-		fail();
+	@Test (expected = IllegalArgumentException.class)
+	public void getContacts_idNotFound_IllArgEx(){
+		Set<Contact> contacts = cm.getContacts(0,1,2);
 	}
+	
+	@Test (expected = IllegalArgumentException.class)
+	public void getContacts_nameNotFound_IllArgEx(){
+		Set<Contact> contacts = cm.getContacts("Joe");
+	}
+	
+	/*
+	 * flush
+	 */
 	
 	@Test
 	public void flush(){
@@ -577,6 +612,7 @@ public class ContactManagerTest {
 	/*
 	 * Private helper methods
 	 */
+	
 	/**
 	 * loads some contact name and notes from TestContacts enum class into contact manager instance
 	 */
