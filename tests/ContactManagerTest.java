@@ -7,6 +7,7 @@ import java.time.Month;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -93,10 +94,7 @@ public class ContactManagerTest {
 		loadTestContacts();
 		Set<Contact> contactList = getContactList(TestContacts.values().length / 2);
 		cm.addNewPastMeeting(contactList, PAST_TEST_DATE, TEST_MEETING_NOTES);
-		Object[] contactArray = contactList.toArray();
-		Contact firstContact = (Contact) contactArray[0]; 
-		int meetingId = cm.getPastMeetingList(firstContact).get(0).getId();
-		FutureMeeting meeting = cm.getFutureMeeting(meetingId);
+		FutureMeeting meeting = cm.getFutureMeeting(0);
 	}
 	
 	@Test
@@ -150,15 +148,11 @@ public class ContactManagerTest {
 	public void getPastMeeting_validInput_returnMeeting() {
 		loadTestContacts();
 		Set<Contact> contactList = getContactList(TestContacts.values().length / 2);
-		//get the first contact added
-		Object[] contactArray = contactList.toArray();
-		Contact firstContact = (Contact) contactArray[0]; 
-		
+	
 		// get the only meeting from contact manager
 		cm.addNewPastMeeting(contactList, PAST_TEST_DATE, TEST_MEETING_NOTES);
-		int meetingId = cm.getPastMeetingList(firstContact).get(0).getId();
-		PastMeeting meeting = cm.getPastMeeting(meetingId);
-		
+		PastMeeting meeting = cm.getPastMeeting(0);
+	
 		boolean equalMeetings =  (meeting.getDate().equals(PAST_TEST_DATE) 
 				&& meeting.getContacts().equals(contactList) 
 				&& meeting.getNotes().equals(TEST_MEETING_NOTES)); 
@@ -183,14 +177,13 @@ public class ContactManagerTest {
 		
 		// get the only meeting from contact manager
 		cm.addNewPastMeeting(contactList, PAST_TEST_DATE, TEST_MEETING_NOTES);
-		int meetingId = cm.getPastMeetingList(firstContact).get(0).getId();
-		PastMeeting foundMeeting = cm.getPastMeeting(meetingId);
+		PastMeeting foundMeeting = cm.getPastMeeting(0);
 		assertEquals(true, unfoundMeeting == null && foundMeeting != null);
 	}
-	
 	/*
 	 * getFutureMeetingList
 	 */
+	/*
 	@Test
 	public void getFutureMeetingList_validContactParam_returnList() {
 		loadTestContacts();
@@ -415,8 +408,9 @@ public class ContactManagerTest {
 	/*
 	 * getPastMeetingList
 	 */
-	
+	/*
 	@Test
+
 	public void getPastMeetingList_validContactParam_returnList() {
 		loadTestContacts();
 		Set<Contact> contacts = getContactList(5);
@@ -508,6 +502,7 @@ public class ContactManagerTest {
 	/*
 	 * addMeetingNotes
 	 */
+	/*
 	@Test
 	public void addMeetingNotes_addNotesPastMeeting_getAddedNotesBack(){
 		loadTestContacts();
@@ -560,6 +555,7 @@ public class ContactManagerTest {
 	/*
 	 * addNewContact
 	 */
+	/*
 	@Test (expected = NullPointerException.class)
 	public void addNewContact_nullName_throwNullPtrEx(){
 		cm.addNewContact(null, TEST_MEETING_NOTES);
@@ -573,7 +569,7 @@ public class ContactManagerTest {
 	/*
 	 * getContacts
 	 */
-	
+	/*
 	@Test
 	public void getContacts_validIntIdVarArg_returnSet(){
 		loadTestContacts();
@@ -632,7 +628,7 @@ public class ContactManagerTest {
 		Set<Contact> contactList = null;
 		if (numContacts > 0 && numContacts <= TestContacts.values().length ){
 			TestContacts[] testContacts = TestContacts.values();
-			contactList = new TreeSet<Contact>();
+			contactList = new HashSet<Contact>();
 			for (int i = 0; i < numContacts; i++){
 				contactList.add(new ContactImpl(i, testContacts[i].toString(), testContacts[i].getNotes()));
 			}
