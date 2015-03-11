@@ -183,31 +183,28 @@ public class ContactManagerTest {
 	/*
 	 * getFutureMeetingList
 	 */
-	/*
+	
 	@Test
 	public void getFutureMeetingList_validContactParam_returnList() {
 		loadTestContacts();
 		Set<Contact> contacts = getContactList(5);
-		
+		Object[] contactsArray = contacts.toArray();
+		Contact contact = (Contact) contactsArray[0];
+
 		int numMeetings = 3;
 		Set<Integer> meetingIds = new TreeSet<Integer>();
 		for (int i = 0; i < numMeetings; i++){
-			cm.addFutureMeeting(contacts, FUTURE_TEST_DATE);
+			meetingIds.add(cm.addFutureMeeting(contacts, FUTURE_TEST_DATE));
 		}
-		Contact[] contactsArray = (Contact[]) contacts.toArray();
-		
-		contacts.remove(contactsArray[0]);
-		for (int i = 0; i < numMeetings; i++){
-			cm.addFutureMeeting(contacts, FUTURE_TEST_DATE);
-		}
-		
-		List<Meeting> returnedMeetings = cm.getFutureMeetingList(contactsArray[0]);
+
+		List<Meeting> returnedMeetings = cm.getFutureMeetingList(contact);
 		Set<Integer> returnedIds = new TreeSet<Integer>();
 		for (Meeting meeting : returnedMeetings){
 			returnedIds.add(meeting.getId());
 		}
 		boolean equalSize = returnedIds.size() == meetingIds.size();
 		boolean isSubset = returnedIds.containsAll(meetingIds);
+
 		assertEquals(true, (equalSize && isSubset));
 	}
 	
@@ -222,9 +219,9 @@ public class ContactManagerTest {
 			meetingIds.add(cm.addFutureMeeting(contacts, FUTURE_TEST_DATE));
 		}
 		
-		Calendar addDate = FUTURE_TEST_DATE;
+		Calendar addDate = FUTURE_TEST_DATE.getInstance();
+		addDate.add(Calendar.DAY_OF_MONTH, 1);
 		for (int i = 0; i < numMeetings; i++){
-			addDate.add(Calendar.DAY_OF_MONTH, 1);
 			cm.addFutureMeeting(contacts, addDate);
 		}
 		
@@ -243,8 +240,9 @@ public class ContactManagerTest {
 	public void getFutureMeetingList_contactWithoutMeetingsParam_returnEmptyList(){
 		loadTestContacts();
 		Set<Contact> contacts = getContactList(2);
-		Contact[] contactsArray = (Contact[]) contacts.toArray();
-		List<Meeting> returnedMeetings = cm.getFutureMeetingList(contactsArray[0]);
+		Object[] contactsArray =  contacts.toArray();
+		Contact contact = (Contact) contactsArray[0];
+		List<Meeting> returnedMeetings = cm.getFutureMeetingList(contact);
 		assertEquals(true, returnedMeetings.isEmpty());
 	}
 	
@@ -264,8 +262,9 @@ public class ContactManagerTest {
 			addDate.add(Calendar.DAY_OF_MONTH, 1);
 			cm.addFutureMeeting(contacts, addDate);
 		}
-		Contact[] contactsArray = (Contact[]) contacts.toArray();
-		List<Meeting> returnedMeetings = cm.getFutureMeetingList(contactsArray[0]);
+		Object[] contactsArray =  contacts.toArray();
+		Contact contact = (Contact) contactsArray[0];
+		List<Meeting> returnedMeetings = cm.getFutureMeetingList(contact);
 		boolean isChronological = true;
 		for (int i = 0; i < returnedMeetings.size() - 1; i++){
 			if (returnedMeetings.get(i).getDate().after(returnedMeetings.get(i + 1).getDate())){
@@ -306,6 +305,7 @@ public class ContactManagerTest {
 		}
 		
 		List<Meeting> returnedMeetings = cm.getFutureMeetingList(FUTURE_TEST_DATE);
+
 		Set<Integer> meetingIds = new TreeSet<Integer>();
 		boolean hasDuplicates = false;
 		for (Meeting meeting : returnedMeetings){
@@ -325,8 +325,9 @@ public class ContactManagerTest {
 		for (int i = 0; i < numMeetings; i++){
 			cm.addFutureMeeting(contacts, FUTURE_TEST_DATE);
 		}
-		Contact[] contactsArray = (Contact[]) contacts.toArray();
-		List<Meeting> returnedMeetings = cm.getFutureMeetingList(contactsArray[0]);
+		Object[] contactsArray =  contacts.toArray();
+		Contact contact = (Contact) contactsArray[0];
+		List<Meeting> returnedMeetings = cm.getFutureMeetingList(contact);
 		Set<Integer> meetingIds = new TreeSet<Integer>();
 		boolean hasDuplicates = false;
 		for (Meeting meeting : returnedMeetings){
@@ -345,10 +346,11 @@ public class ContactManagerTest {
 		int numMeetings = 3;
 		Set<Integer> meetingIds = new TreeSet<Integer>();
 		for (int i = 0; i < numMeetings; i++){
-			meetingIds.add(cm.addFutureMeeting(contacts, PAST_TEST_DATE));
+			meetingIds.add(i);
+			cm.addNewPastMeeting(contacts, PAST_TEST_DATE, TEST_MEETING_NOTES);
 		}
 		
-		Calendar addDate = PAST_TEST_DATE;
+		Calendar addDate = FUTURE_TEST_DATE;
 		for (int i = 0; i < numMeetings; i++){
 			addDate.add(Calendar.DAY_OF_MONTH, 1);
 			cm.addFutureMeeting(contacts, addDate);
@@ -359,6 +361,7 @@ public class ContactManagerTest {
 		for (Meeting meeting : returnedMeetings){
 			returnedIds.add(meeting.getId());
 		}
+
 		boolean equalSize = returnedIds.size() == meetingIds.size();
 		boolean isSubset = returnedIds.containsAll(meetingIds);
 		assertEquals(true, (equalSize && isSubset));
@@ -366,9 +369,8 @@ public class ContactManagerTest {
 	
 	@Test (expected = IllegalArgumentException.class)
 	public void getFutureMeetingList_unknownContactParam_throwIllArgEx(){
-		Set<Contact> contacts = getContactList(5);
-		Contact[] contactsArray = (Contact[]) contacts.toArray();
-		cm.getFutureMeetingList(contactsArray[0]);
+		Set<Contact> contacts = getContactList(2);
+		cm.getFutureMeetingList(contacts.iterator().next());
 	}
 	
 	@Test (expected = IllegalArgumentException.class)
@@ -408,7 +410,7 @@ public class ContactManagerTest {
 	/*
 	 * getPastMeetingList
 	 */
-	/*
+	
 	@Test
 
 	public void getPastMeetingList_validContactParam_returnList() {
@@ -420,13 +422,13 @@ public class ContactManagerTest {
 		for (int i = 0; i < numMeetings; i++){
 			cm.addNewPastMeeting(contacts, PAST_TEST_DATE, TEST_MEETING_NOTES);
 		}
-		Contact[] contactsArray = (Contact[]) contacts.toArray();
-		
-		contacts.remove(contactsArray[0]);
+		Object[] contactsArray =  contacts.toArray();
+		Contact contact = (Contact) contactsArray[0];
+		contacts.remove(contact);
 		for (int i = 0; i < numMeetings; i++){
 			cm.addNewPastMeeting(contacts, PAST_TEST_DATE, TEST_MEETING_NOTES);
 		}
-		List<PastMeeting> returnedMeetings = cm.getPastMeetingList(contactsArray[0]);
+		List<PastMeeting> returnedMeetings = cm.getPastMeetingList(contact);
 		Set<Integer> returnedIds = new TreeSet<Integer>();
 		for (PastMeeting meeting : returnedMeetings){
 			returnedIds.add(meeting.getId());
@@ -440,8 +442,9 @@ public class ContactManagerTest {
 	public void getPastMeetingList_noMeetingsWithContactParam_returnEmptyList(){
 		loadTestContacts();
 		Set<Contact> contacts = getContactList(2);
-		Contact[] contactsArray = (Contact[]) contacts.toArray();
-		List<PastMeeting> returnedMeetings = cm.getPastMeetingList(contactsArray[0]);
+		Object[] contactsArray =  contacts.toArray();
+		Contact contact = (Contact) contactsArray[0];
+		List<PastMeeting> returnedMeetings = cm.getPastMeetingList(contact);
 		assertEquals(true, returnedMeetings.isEmpty());
 	}
 	
@@ -455,8 +458,9 @@ public class ContactManagerTest {
 			addDate.add(Calendar.DAY_OF_MONTH, 1);
 			cm.addNewPastMeeting(contacts, addDate, TEST_MEETING_NOTES);
 		}
-		Contact[] contactsArray = (Contact[]) contacts.toArray();
-		List<PastMeeting> returnedMeetings = cm.getPastMeetingList(contactsArray[0]);
+		Object[] contactsArray =  contacts.toArray();
+		Contact contact = (Contact) contactsArray[0];
+		List<PastMeeting> returnedMeetings = cm.getPastMeetingList(contact);
 		boolean isChronological = true;
 		for (int i = 0; i < returnedMeetings.size() - 1; i++){
 			if (returnedMeetings.get(i).getDate().after(returnedMeetings.get(i + 1).getDate())){
@@ -475,8 +479,9 @@ public class ContactManagerTest {
 		for (int i = 0; i < numMeetings; i++){
 			cm.addNewPastMeeting(contacts, PAST_TEST_DATE, TEST_MEETING_NOTES);
 		}
-		Contact[] contactsArray = (Contact[]) contacts.toArray();
-		List<PastMeeting> returnedMeetings = cm.getPastMeetingList(contactsArray[0]);
+		Object[] contactsArray = contacts.toArray();
+		Contact contact = (Contact) contactsArray[0];
+		List<PastMeeting> returnedMeetings = cm.getPastMeetingList(contact);
 		Set<Integer> meetingIds = new TreeSet<Integer>();
 		boolean hasDuplicates = false;
 		for (Meeting meeting : returnedMeetings){
@@ -495,8 +500,9 @@ public class ContactManagerTest {
 	@Test (expected = IllegalArgumentException.class)
 	public void getPastMeetingList_unknownContactParam_throwIllArgEx(){
 		Set<Contact> contacts = getContactList(2);
-		Contact[] contactsArray = (Contact[]) contacts.toArray();
-		List<PastMeeting> returnedMeetings = cm.getPastMeetingList(contactsArray[0]);
+		Object[] contactsArray =  contacts.toArray();
+		Contact contact = (Contact) contactsArray[0];
+		List<PastMeeting> returnedMeetings = cm.getPastMeetingList(contact);
 	}
 	
 	/*
@@ -613,9 +619,16 @@ public class ContactManagerTest {
 	 * loads some contact name and notes from TestContacts enum class into contact manager instance
 	 */
 	private void loadTestContacts() {
+		TestContacts[] testContacts = TestContacts.values();
+		
+		for (int i = 0; i < testContacts.length; i++){
+			cm.addNewContact(testContacts[i].toString(), testContacts[i].getNotes());
+		}
+		/*
 		for (TestContacts contact : TestContacts.values()){
 			cm.addNewContact(contact.toString(), contact.getNotes());
 		}
+		*/
 	}
 	
 	/**
