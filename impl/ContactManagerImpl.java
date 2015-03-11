@@ -2,9 +2,9 @@ package impl;
 
 import java.util.Calendar;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-
 
 import interfaces.Contact;
 import interfaces.ContactManager;
@@ -47,7 +47,8 @@ public class ContactManagerImpl implements ContactManager {
 			if (meeting.getId() == id) return meeting;
 		}
 		for (PastMeeting meeting : pastMeetings){
-			if (meeting.getId() == id)throw new IllegalArgumentException("Meeting ID represents past meeting!");
+			if (meeting.getId() == id)
+				throw new IllegalArgumentException("Meeting ID represents past meeting!");
 		}
 		return null;
 	}
@@ -66,20 +67,45 @@ public class ContactManagerImpl implements ContactManager {
 
 	@Override
 	public List<Meeting> getFutureMeetingList(Contact contact) {
-		// TODO Auto-generated method stub
-		return null;
+		if (contact == null) throw new IllegalArgumentException("Null contact provided!");
+		if (!isInDb (contact)) throw new IllegalArgumentException("Contact does not exist!");
+		List<Meeting> meetings = new LinkedList<Meeting>();
+		for (Meeting meeting : futureMeetings){
+			for (Contact member : meeting.getContacts()){
+				if (member.getId() == contact.getId()){
+					meetings.add(meeting);
+				}
+			}
+		}
+		return meetings;
 	}
 
 	@Override
 	public List<Meeting> getFutureMeetingList(Calendar date) {
-		// TODO Auto-generated method stub
-		return null;
+		if (date == null) throw new IllegalArgumentException("Null date provided!");
+		List<Meeting> meetings = new LinkedList<Meeting>();
+		for (Meeting meeting : futureMeetings){
+			if (meeting.getDate().equals(date))
+				meetings.add(meeting);
+		}
+		for (Meeting meeting : pastMeetings){
+			if (meeting.getDate().equals(date))
+				meetings.add(meeting);
+		}
+		return meetings;
 	}
 
 	@Override
 	public List<PastMeeting> getPastMeetingList(Contact contact) {
-		// TODO Auto-generated method stub
-		return null;
+		if (!isInDb (contact)) throw new IllegalArgumentException("Contact does not exist!");
+		List<PastMeeting> pastMeetings = new LinkedList<PastMeeting>();
+		for (PastMeeting meeting : pastMeetings){
+			for (Contact member : meeting.getContacts()){
+				if (member.getName().equals(contact.getName()))
+					pastMeetings.add(meeting);
+			}
+		}
+		return pastMeetings;
 	}
 
 	@Override
