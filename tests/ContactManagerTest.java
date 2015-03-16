@@ -508,21 +508,15 @@ public class ContactManagerTest {
 	/*
 	 * addMeetingNotes
 	 */
-	/*
+	
 	@Test
 	public void addMeetingNotes_addNotesPastMeeting_getAddedNotesBack(){
 		loadTestContacts();
 		Set<Contact> contactList = getContactList(TestContacts.values().length / 2);
-		//get the first contact added
-		Object[] contactArray = contactList.toArray();
-		Contact firstContact = (Contact) contactArray[0]; 
-		
 		// get the only meeting from contact manager
 		cm.addNewPastMeeting(contactList, PAST_TEST_DATE, TEST_MEETING_NOTES);
-		int meetingId = cm.getPastMeetingList(firstContact).get(0).getId();
-		PastMeeting meeting = cm.getPastMeeting(meetingId);
-		cm.addMeetingNotes(meeting.getId(), TEST_MEETING_NOTES);
-		assertEquals(String.format("%s\n%s", TEST_MEETING_NOTES, TEST_MEETING_NOTES), meeting.getNotes());
+		cm.addMeetingNotes(0, TEST_MEETING_NOTES);
+		assertEquals(true, String.format("%s\n%s", TEST_MEETING_NOTES, TEST_MEETING_NOTES).equals(cm.getPastMeeting(0).getNotes()));
 	}
 	
 	@Test
@@ -561,7 +555,7 @@ public class ContactManagerTest {
 	/*
 	 * addNewContact
 	 */
-	/*
+	
 	@Test (expected = NullPointerException.class)
 	public void addNewContact_nullName_throwNullPtrEx(){
 		cm.addNewContact(null, TEST_MEETING_NOTES);
@@ -575,7 +569,7 @@ public class ContactManagerTest {
 	/*
 	 * getContacts
 	 */
-	/*
+	
 	@Test
 	public void getContacts_validIntIdVarArg_returnSet(){
 		loadTestContacts();
