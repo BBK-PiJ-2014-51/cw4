@@ -132,7 +132,6 @@ public class ContactManagerImpl implements ContactManager {
 		if (text == null) throw new NullPointerException("Notes are null!");		
 		for (PastMeeting meeting : pastMeetings){
 			if (meeting.getId() == id) {
-				System.out.println("adding past meeting");
 				pastMeetings.add(new PastMeetingImpl(id, meeting.getDate(),
 						meeting.getContacts(), String.format("%s\n%s", meeting.getNotes(), text)));
 				pastMeetings.remove(meeting);
