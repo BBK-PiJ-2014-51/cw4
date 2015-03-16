@@ -23,6 +23,7 @@ public class ContactManagerImpl implements ContactManager {
 	public int addFutureMeeting(Set<Contact> contacts, Calendar date) {
 		if (contacts == null || date == null) throw new NullPointerException("Null parameter!");
 		if (contacts.isEmpty()) throw new IllegalArgumentException("Must supply contacts!");
+		if (date.before(Calendar.getInstance())) throw new IllegalArgumentException("Date is in the past already!");
 		for (Contact contact : contacts){
 			if (!isInDb(contact)) throw new IllegalArgumentException("Unknown Contact!");
 		}
@@ -128,25 +129,55 @@ public class ContactManagerImpl implements ContactManager {
 
 	@Override
 	public void addMeetingNotes(int id, String text) {
-		// TODO Auto-generated method stub
-
+		if (text == null) throw new NullPointerException("Notes are null!");		
+		for (PastMeeting meeting : pastMeetings){
+			if (meeting.getId() == id) {
+				System.out.println("adding past meeting");
+				pastMeetings.add(new PastMeetingImpl(id, meeting.getDate(),
+						meeting.getContacts(), String.format("%s\n%s", meeting.getNotes(), text)));
+				pastMeetings.remove(meeting);
+				return;
+			}
+		}
+		for (FutureMeeting meeting : futureMeetings){
+			if (meeting.getId() == id){
+				if (meeting.getDate().after(Calendar.getInstance())) 
+					throw new IllegalStateException("Meeting is still scheduled for the future!");
+				pastMeetings.add(new PastMeetingImpl(id, meeting.getDate(), 
+						meeting.getContacts(), text));
+				futureMeetings.remove(meeting);
+				return;
+			}
+		}
+		throw new IllegalArgumentException("ID does not represent meeting!");		
 	}
 
 	@Override
 	public void addNewContact(String name, String notes) {
+		if (name == null || notes == null) throw new NullPointerException("Neither name nor notes may be null!");	
 		contacts.add(new ContactImpl(currentContactId++, name, notes));
 	}
 
 	@Override
 	public Set<Contact> getContacts(int... ids) {
-		// TODO Auto-generated method stub
-		return null;
+		Set<Contact> foundContacts = new HashSet<Contact>();
+		for (Contact contact : contacts){
+			for (int id : ids){
+				if (contact.getId() == id) foundContacts.add(contact);
+			}
+		}
+		if (foundContacts.isEmpty()) throw new IllegalArgumentException("Id not found!");
+		return foundContacts;
 	}
 
 	@Override
 	public Set<Contact> getContacts(String name) {
-		// TODO Auto-generated method stub
-		return null;
+		Set<Contact> foundContacts = new HashSet<Contact>();
+		for (Contact contact : contacts){
+			if (contact.getName().contains(name)) foundContacts.add(contact);
+		}
+		if (foundContacts.isEmpty()) throw new IllegalArgumentException("Name not found!");
+		return foundContacts;
 	}
 
 	@Override
