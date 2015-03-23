@@ -262,7 +262,7 @@ public class ContactManagerTest {
 			addDate.add(Calendar.DAY_OF_MONTH, 1);
 			cm.addFutureMeeting(contacts, addDate);
 		}
-		Object[] contactsArray =  contacts.toArray();
+		Object[] contactsArray =  contacts.toArray(); // TODO shouldn't be needed
 		Contact contact = (Contact) contactsArray[0];
 		List<Meeting> returnedMeetings = cm.getFutureMeetingList(contact);
 		boolean isChronological = true;
@@ -279,10 +279,11 @@ public class ContactManagerTest {
 		loadTestContacts();
 		Set<Contact> contacts = getContactList(5);
 		int numMeetings = 3;
-		Calendar addDate = FUTURE_TEST_DATE;
-		for (int i = 0; i < numMeetings; i++){
-			addDate.add(Calendar.HOUR_OF_DAY, 2);
+		Calendar addDate = (Calendar) FUTURE_TEST_DATE.clone();
+		for (int i = 0; i < numMeetings; i++){		
 			cm.addFutureMeeting(contacts, addDate);
+			addDate = (Calendar) addDate.clone();
+			addDate.add(Calendar.HOUR_OF_DAY, -2);
 		}
 		List<Meeting> returnedMeetings = cm.getFutureMeetingList(FUTURE_TEST_DATE);
 		boolean isChronological = true;
@@ -453,10 +454,11 @@ public class ContactManagerTest {
 		loadTestContacts();
 		Set<Contact> contacts = getContactList(5);
 		int numMeetings = 3;
-		Calendar addDate = PAST_TEST_DATE;
+		Calendar addDate = (Calendar) PAST_TEST_DATE.clone();
 		for (int i = 0; i < numMeetings; i++){
-			addDate.add(Calendar.DAY_OF_MONTH, 1);
 			cm.addNewPastMeeting(contacts, addDate, TEST_MEETING_NOTES);
+			addDate = (Calendar) addDate.clone();
+			addDate.add(Calendar.DAY_OF_MONTH, -1);
 		}
 		Object[] contactsArray =  contacts.toArray();
 		Contact contact = (Contact) contactsArray[0];
