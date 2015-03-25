@@ -1,11 +1,32 @@
 package impl;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
 import interfaces.Contact;
 import interfaces.ContactManager;
 import interfaces.FutureMeeting;
@@ -13,12 +34,66 @@ import interfaces.Meeting;
 import interfaces.PastMeeting;
 
 public class ContactManagerImpl implements ContactManager {
-	private Set<Contact> contacts = new HashSet<Contact>();
-	private Set<PastMeeting> pastMeetings = new HashSet<PastMeeting>();
-	private Set<FutureMeeting> futureMeetings = new HashSet<FutureMeeting>();
-	private int currentMeetingId = 0;
-	private int currentContactId = 0;
+	private static final String XML_DATA_FILENAME = "data.xml";	
+	private Set<Contact> contacts;
+	private Set<PastMeeting> pastMeetings;
+	private Set<FutureMeeting> futureMeetings;
+	private int currentMeetingId;
+	private int currentContactId;
 	
+	public ContactManagerImpl(boolean restoreData) {
+		if (restoreData) restoreData();
+		else setInitAttributes();
+	}
+	
+	public ContactManagerImpl(){
+		setInitAttributes();
+	}
+	
+	private void setInitAttributes(){
+		contacts = new HashSet<Contact>();
+		pastMeetings = new HashSet<PastMeeting>();
+		futureMeetings = new HashSet<FutureMeeting>();
+		currentMeetingId = 0;
+		currentContactId = 0;		
+	}
+	
+	private boolean restoreData(){
+		// TODO load data back in from xml file created with flush()
+		File xmlData = new File(XML_DATA_FILENAME);
+		DocumentBuilder builder = null;
+		try {
+			builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		}
+		
+		Document doc = null;
+		try {
+			doc = builder.parse(xmlData);
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		NodeList contactNodes = doc.getElementsByTagName("contacts");
+		NodeList pastMeetingNodes = doc.getElementsByTagName("past_meetings");
+		NodeList futureMeetingNodes = doc.getElementsByTagName("future_meetings");
+		
+		for (int i = 0; i < contactNodes.getLength(); i ++){
+			// TODO this doesnt seem to be working at all. Cast to element?
+			Node currentNode = contactNodes.item(i);
+			NamedNodeMap nodes = currentNode.getAttributes();
+			String id = nodes.getNamedItem("id").getNodeValue(); //null ptr exception here
+			String name = nodes.getNamedItem("name").getNodeValue();
+			String notes = nodes.getNamedItem("notes").getNodeValue();
+			System.out.println(id + ", " + name + ", " + notes);
+		}
+		
+		return false;
+	}
+
 	@Override
 	public int addFutureMeeting(Set<Contact> contacts, Calendar date) {
 		if (contacts == null || date == null) 
@@ -229,9 +304,83 @@ public class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
-	public void flush() {
-		// TODO Auto-generated method stub
-
+	public void flush() {		
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder = null;
+		Document doc = null;
+		
+		try {
+			builder = factory.newDocumentBuilder();
+			doc = builder.newDocument();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		}
+		
+		Element rootElem = doc.createElement("contact_manager_data");
+		doc.appendChild(rootElem);
+		
+		Element contactsElem = doc.createElement("contacts");
+		rootElem.appendChild(contactsElem);
+		for (Contact contact : contacts){
+			Element contactElem = doc.createElement("contact");
+			contactsElem.appendChild(contactElem);
+			contactElem.setAttribute("id", String.valueOf(contact.getId()));
+			contactElem.setAttribute("name", contact.getName());
+			contactElem.setAttribute("notes", contact.getNotes());
+		}
+		
+		Element pastMeetingsElem = doc.createElement("past_meetings");
+		rootElem.appendChild(pastMeetingsElem);
+		for (PastMeeting meeting : pastMeetings){
+			Element pastMeetingElem = doc.createElement("past_meeting");
+			pastMeetingsElem.appendChild(pastMeetingElem);
+			
+			pastMeetingElem.setAttribute("id", String.valueOf(meeting.getId()));
+			pastMeetingElem.setAttribute("date", String.valueOf(meeting.getDate().getTimeInMillis()));
+			pastMeetingElem.setAttribute("notes", meeting.getNotes());
+			
+			String contactList = "";
+			for (Contact contact : meeting.getContacts()){
+				contactList += contact.getId() + ", ";
+			}
+			contactList.substring(0, contactList.length() - 2);
+			pastMeetingElem.setAttribute("contact_id_list", contactList);			
+		}
+		
+		Element futureMeetingsElem = doc.createElement("future_meetings");
+		rootElem.appendChild(futureMeetingsElem);
+		for (FutureMeeting meeting : futureMeetings){
+			Element futureMeetingElem = doc.createElement("future_meeting");
+			futureMeetingsElem.appendChild(futureMeetingElem);
+			
+			futureMeetingElem.setAttribute("id", String.valueOf(meeting.getId()));
+			futureMeetingElem.setAttribute("date", String.valueOf(meeting.getDate().getTimeInMillis()));
+			
+			String contactList = "";
+			for (Contact contact : meeting.getContacts()){
+				contactList += contact.getId() + ", ";
+			}
+			contactList.substring(0, contactList.length() - 2);
+			futureMeetingElem.setAttribute("contact_id_list", contactList);			
+		}
+		
+		Transformer transformer = null;
+		try {
+			transformer = TransformerFactory.newInstance().newTransformer();
+		} catch (TransformerConfigurationException e) {
+			e.printStackTrace();
+		} catch (TransformerFactoryConfigurationError e) {
+			e.printStackTrace();
+		}
+		
+		DOMSource src = new DOMSource(doc);
+		StreamResult stream = new StreamResult(new File(XML_DATA_FILENAME));
+		
+		try {
+			transformer.transform(src, stream);
+		} catch (TransformerException e) {
+			e.printStackTrace();
+		}
+		
 	}
-
 }
