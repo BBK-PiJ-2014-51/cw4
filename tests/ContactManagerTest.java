@@ -1,11 +1,10 @@
 package tests;
 
 import static org.junit.Assert.*;
+import org.junit.Test;
 
-import java.time.LocalDate;
 import java.time.Month;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
@@ -20,8 +19,6 @@ import interfaces.FutureMeeting;
 import interfaces.Meeting;
 import interfaces.PastMeeting;
 
-import org.junit.Before;
-import org.junit.Test;
 /**
  * Contact Manager Tests
  * @author caleb
@@ -601,11 +598,88 @@ public class ContactManagerTest {
 	 */
 	
 	@Test
-	public void flush(){
-		//save and restore state
-		fail();
+	public void flush_addContacts_restoreNumContacts(){
+		loadTestContacts();
+		
+		cm.flush();
+		cm = new ContactManagerImpl(true);
+		Set<Contact> contactList = getContactList(TestContacts.values().length);
+		
+		boolean contactsPresent = true;
+		int hasChecked = 0;
+		for (Contact contact : contactList){
+			try{
+				cm.getContacts(contact.getId());
+			} catch (IllegalArgumentException ex){
+				contactsPresent = false;
+			}
+			hasChecked++;
+		}
+		
+		assertEquals(true, contactsPresent && hasChecked == TestContacts.values().length);
 	}
 	
+	@Test
+	public void flush_addPastMeetings_restoreNumPastMeetings(){
+		loadTestContacts();
+		Set<Contact> contactList = getContactList(TestContacts.values().length / 2);
+		
+		Calendar addDate = PAST_TEST_DATE;
+		int numMeetings = 3;
+		for (int i = 0; i < numMeetings; i++){
+			addDate = (Calendar) addDate.clone();
+			addDate.add(Calendar.DAY_OF_YEAR, 2);
+			cm.addNewPastMeeting(contactList, addDate, TEST_MEETING_NOTES);			
+		}
+		
+		cm.flush();
+		cm = new ContactManagerImpl(true);
+		
+		boolean meetingsPresent = true;
+		int hasChecked = 0;
+		for (int i = 0; i < numMeetings; i++){
+			try{			
+				PastMeeting meeting = cm.getPastMeeting(i);
+				if (meeting == null) meetingsPresent = false;
+			} catch (IllegalArgumentException ex){
+				meetingsPresent = false;
+			}
+			hasChecked++;
+		}
+		
+		assertEquals(true, meetingsPresent && hasChecked == numMeetings);
+	}
+	
+	@Test
+	public void flush_addFutureMeetings_restoreNumFutureMeetings(){
+		loadTestContacts();
+		Set<Contact> contactList = getContactList(TestContacts.values().length / 2);
+		
+		Calendar addDate = FUTURE_TEST_DATE;
+		int numMeetings = 3;		
+		for (int i = 0; i < numMeetings; i++){
+			addDate = (Calendar) addDate.clone();
+			addDate.add(Calendar.DAY_OF_YEAR, 2);			
+			cm.addFutureMeeting(contactList, addDate);			
+		}
+		
+		cm.flush();
+		cm = new ContactManagerImpl(true);
+		
+		boolean meetingsPresent = true;
+		int hasChecked = 0;
+		for (int i = 0; i < numMeetings; i++){
+			try{			
+				FutureMeeting meeting = cm.getFutureMeeting(i);
+				if (meeting == null) meetingsPresent = false;
+			} catch (IllegalArgumentException ex){
+				meetingsPresent = false;
+			}
+			hasChecked++;
+		}
+		
+		assertEquals(true, meetingsPresent && hasChecked == numMeetings);
+	}
 	
 	/*
 	 * Private helper methods
