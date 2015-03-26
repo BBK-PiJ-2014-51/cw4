@@ -1,18 +1,11 @@
-package tests;
-
-import static org.junit.Assert.*;
-import impl.ContactImpl;
-import impl.MeetingImpl;
-import interfaces.Contact;
-import interfaces.Meeting;
+import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Set;
-
-import org.junit.Before;
-import org.junit.Test;
 
 public class MeetingTest {
 	private static final int TEST_ID = 33;

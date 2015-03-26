@@ -1,12 +1,6 @@
-package tests;
-
-import static org.junit.Assert.*;
-
+import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
-
-import impl.ContactImpl;
-import interfaces.Contact;
 
 public class ContactTest {
 	private static final int TEST_ID = 33;

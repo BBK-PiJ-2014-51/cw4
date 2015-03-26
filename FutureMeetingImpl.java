@@ -1,10 +1,6 @@
-package impl;
-
 import java.util.Calendar;
 import java.util.Set;
 
-import interfaces.Contact;
-import interfaces.FutureMeeting;
 /**
  * Implementation for Future Meeting using MeetingImpl as superclass.
  * @author caleb

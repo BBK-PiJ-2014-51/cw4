@@ -1,5 +1,3 @@
-package tests;
-
 public enum TestContacts {
 	JOHN("Here are John's notes."),
 	KEVIN("Here are Kevin's notes."),

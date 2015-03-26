@@ -1,10 +1,6 @@
-package impl;
-
 import java.util.Calendar;
 import java.util.Set;
 
-import interfaces.Contact;
-import interfaces.PastMeeting;
 /**
  * Implementation for PastMeeting based on MeetingImpl.<br />
  * 

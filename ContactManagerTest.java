@@ -1,7 +1,4 @@
-package tests;
-
-import static org.junit.Assert.*;
-
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import java.time.Month;
@@ -11,14 +8,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-
-import impl.ContactImpl;
-import impl.ContactManagerImpl;
-import interfaces.Contact;
-import interfaces.ContactManager;
-import interfaces.FutureMeeting;
-import interfaces.Meeting;
-import interfaces.PastMeeting;
 
 /**
  * Contact Manager Tests

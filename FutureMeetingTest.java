@@ -1,18 +1,10 @@
-package tests;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Set;
-
-import impl.ContactImpl;
-import impl.FutureMeetingImpl;
-import interfaces.Contact;
-import interfaces.FutureMeeting;
-
-import org.junit.Test;
 
 public class FutureMeetingTest {
 	private static final Calendar TEST_DATE = new GregorianCalendar(2015, 06, 15);

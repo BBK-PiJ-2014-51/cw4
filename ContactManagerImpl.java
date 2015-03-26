@@ -1,5 +1,3 @@
-package impl;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
@@ -26,12 +24,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
-import interfaces.Contact;
-import interfaces.ContactManager;
-import interfaces.FutureMeeting;
-import interfaces.Meeting;
-import interfaces.PastMeeting;
 
 /**
  * An implementation of contact manager

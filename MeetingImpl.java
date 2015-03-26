@@ -1,10 +1,6 @@
-package impl;
-
-import interfaces.Contact;
-import interfaces.Meeting;
-
 import java.util.Calendar;
 import java.util.Set;
+
 /**
  * Requires id to be specified upon creation.
  */
