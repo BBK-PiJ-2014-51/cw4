@@ -1,6 +1,7 @@
 package tests;
 
 import static org.junit.Assert.*;
+
 import org.junit.Test;
 
 import java.time.Month;
@@ -33,7 +34,7 @@ public class ContactManagerTest {
 	private static final Calendar FUTURE_TEST_DATE = new GregorianCalendar(2016, Month.JANUARY.getValue(), 1, 12, 0);
 	private static final String TEST_MEETING_NOTES = "Some test meeting notes";
 	
-	private ContactManager cm = new ContactManagerImpl();
+	private ContactManager cm = new ContactManagerImpl(false);
 
 	/*
 	 * getMeeting
@@ -520,10 +521,16 @@ public class ContactManagerTest {
 	
 	@Test
 	public void addMeetingNotes_addNotesFutureMeeting_getPastMeetingBack(){
-		// TODO change system date?
 		loadTestContacts();
 		Set<Contact> contactList = getContactList(TestContacts.values().length / 2);
-		int id = cm.addFutureMeeting(contactList, FUTURE_TEST_DATE);
+		Calendar now = Calendar.getInstance();
+		now.add(Calendar.MILLISECOND, 80); //add a meeting 80ms in the future
+		int id = cm.addFutureMeeting(contactList, now);
+		try {
+			Thread.sleep(100); //wait 100 ms
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		cm.addMeetingNotes(id, TEST_MEETING_NOTES);
 		PastMeeting meeting = cm.getPastMeeting(id);
 		assertEquals(TEST_MEETING_NOTES, meeting.getNotes());
@@ -694,11 +701,6 @@ public class ContactManagerTest {
 		for (int i = 0; i < testContacts.length; i++){
 			cm.addNewContact(testContacts[i].toString(), testContacts[i].getNotes());
 		}
-		/*
-		for (TestContacts contact : TestContacts.values()){
-			cm.addNewContact(contact.toString(), contact.getNotes());
-		}
-		*/
 	}
 	
 	/**
