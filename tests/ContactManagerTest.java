@@ -24,9 +24,12 @@ import interfaces.PastMeeting;
  * Contact Manager Tests
  * @author caleb
  *
- * All test cases are named as such: <Scope of test>_<Context tested>_<Expected Result>
- * e.g. testing a method named computeTotal with a null parameter, expecting an illegal argument exception
- * could be named computeTotal_nullParam_throwIllArgEx
+ * All test cases are named as such: Scope of test_Context tested_Expected Result<br />
+ * e.g. computeTotal_nullParam_throwIllArgEx indicates testing a method named 
+ * computeTotal with a null parameter, expecting an illegal argument exception. <br />
+ * 
+ * Tests are put in order of the method they test.<br />
+ *  
  */
 public class ContactManagerTest {
 
@@ -265,7 +268,8 @@ public class ContactManagerTest {
 		List<Meeting> returnedMeetings = cm.getFutureMeetingList(contact);
 		boolean isChronological = true;
 		for (int i = 0; i < returnedMeetings.size() - 1; i++){
-			if (returnedMeetings.get(i).getDate().after(returnedMeetings.get(i + 1).getDate())){
+			if (returnedMeetings.get(i).getDate()
+					.after(returnedMeetings.get(i + 1).getDate())){
 				isChronological = false;
 			}
 		}
@@ -286,7 +290,8 @@ public class ContactManagerTest {
 		List<Meeting> returnedMeetings = cm.getFutureMeetingList(FUTURE_TEST_DATE);
 		boolean isChronological = true;
 		for (int i = 0; i < returnedMeetings.size() - 1; i++){
-			if (returnedMeetings.get(i).getDate().after(returnedMeetings.get(i + 1).getDate())){
+			if (returnedMeetings.get(i).getDate()
+					.after(returnedMeetings.get(i + 1).getDate())){
 				isChronological = false;
 			}
 		}
@@ -399,7 +404,8 @@ public class ContactManagerTest {
 		List<Meeting> returnedMeetings = cm.getFutureMeetingList(PAST_TEST_DATE);
 		boolean isChronological = true;
 		for (int i = 0; i < returnedMeetings.size() - 1; i++){
-			if (returnedMeetings.get(i).getDate().after(returnedMeetings.get(i + 1).getDate())){
+			if (returnedMeetings.get(i).getDate()
+					.after(returnedMeetings.get(i + 1).getDate())){
 				isChronological = false;
 			}
 		}
@@ -463,7 +469,8 @@ public class ContactManagerTest {
 		List<PastMeeting> returnedMeetings = cm.getPastMeetingList(contact);
 		boolean isChronological = true;
 		for (int i = 0; i < returnedMeetings.size() - 1; i++){
-			if (returnedMeetings.get(i).getDate().after(returnedMeetings.get(i + 1).getDate())){
+			if (returnedMeetings.get(i).getDate()
+					.after(returnedMeetings.get(i + 1).getDate())){
 				isChronological = false;
 			}
 		}
@@ -516,7 +523,8 @@ public class ContactManagerTest {
 		// get the only meeting from contact manager
 		cm.addNewPastMeeting(contactList, PAST_TEST_DATE, TEST_MEETING_NOTES);
 		cm.addMeetingNotes(0, TEST_MEETING_NOTES);
-		assertEquals(true, String.format("%s\n%s", TEST_MEETING_NOTES, TEST_MEETING_NOTES).equals(cm.getPastMeeting(0).getNotes()));
+		assertEquals(true, String.format("%s\n%s", TEST_MEETING_NOTES, TEST_MEETING_NOTES)
+				.equals(cm.getPastMeeting(0).getNotes()));
 	}
 	
 	@Test
@@ -524,10 +532,10 @@ public class ContactManagerTest {
 		loadTestContacts();
 		Set<Contact> contactList = getContactList(TestContacts.values().length / 2);
 		Calendar now = Calendar.getInstance();
-		now.add(Calendar.MILLISECOND, 80); //add a meeting 80ms in the future
+		now.add(Calendar.MILLISECOND, 10); //add a meeting slightly in the future
 		int id = cm.addFutureMeeting(contactList, now);
 		try {
-			Thread.sleep(100); //wait 100 ms
+			Thread.sleep(20); //wait a bit longer
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -598,6 +606,13 @@ public class ContactManagerTest {
 	@Test (expected = IllegalArgumentException.class)
 	public void getContacts_nameNotFound_IllArgEx(){
 		Set<Contact> contacts = cm.getContacts("Joe");
+	}
+	
+	@Test
+	public void getContacts_emptyString_returnAllContacts(){
+		loadTestContacts();
+		Set<Contact> contacts = cm.getContacts("");
+		assertEquals(TestContacts.values().length, contacts.size());
 	}
 	
 	/*

@@ -5,36 +5,32 @@ import java.util.Set;
 
 import interfaces.Contact;
 import interfaces.PastMeeting;
-
-public class PastMeetingImpl implements PastMeeting {
-	private int id;
-	private Calendar date;
-	private Set<Contact> contacts;
+/**
+ * Implementation for PastMeeting based on MeetingImpl.<br />
+ * 
+ * @author caleb
+ *
+ */
+public class PastMeetingImpl extends MeetingImpl implements PastMeeting {
 	private String notes;
 	
+	/**
+	 * Constructor for past meetings. 
+	 *  
+	 * @param id to identify meeting
+	 * @param date meeting was held
+	 * @param contacts present at meeting
+	 * @param notes concerning meeting
+	 */
 	public PastMeetingImpl(int id, Calendar date,
 			Set<Contact> contacts, String notes) {
-		this.id = id;
-		this.date = date;
-		this.contacts = contacts;
+		super(id, date, contacts);;
 		this.notes = notes;
 	}
 
-	@Override
-	public int getId() {
-		return id;
-	}
-
-	@Override
-	public Calendar getDate() {
-		return date;
-	}
-
-	@Override
-	public Set<Contact> getContacts() {
-		return contacts;
-	}
-
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getNotes() {
 		return notes;
