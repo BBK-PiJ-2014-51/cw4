@@ -34,7 +34,9 @@ import interfaces.Meeting;
 import interfaces.PastMeeting;
 
 public class ContactManagerImpl implements ContactManager {
+	
 	private static final String XML_DATA_FILENAME = "data.xml";	
+	
 	private Set<Contact> contacts;
 	private Set<PastMeeting> pastMeetings;
 	private Set<FutureMeeting> futureMeetings;
@@ -42,12 +44,15 @@ public class ContactManagerImpl implements ContactManager {
 	private int currentContactId;
 	
 	public ContactManagerImpl(boolean restoreData) {
-		if (restoreData) restoreData();
-		else setInitAttributes();
+		setInitAttributes();
+		File xmlData = new File(XML_DATA_FILENAME);
+		if (restoreData && xmlData.exists()) restoreData(xmlData);		
 	}
 	
 	public ContactManagerImpl(){
 		setInitAttributes();
+		File xmlData = new File(XML_DATA_FILENAME);
+		if (xmlData.exists()) restoreData(xmlData);
 	}
 	
 	private void setInitAttributes(){
@@ -58,9 +63,8 @@ public class ContactManagerImpl implements ContactManager {
 		currentContactId = 0;		
 	}
 	
-	private boolean restoreData(){
-		// TODO load data back in from xml file created with flush()
-		File xmlData = new File(XML_DATA_FILENAME);
+	private boolean restoreData(File xmlData){
+		
 		DocumentBuilder builder = null;
 		try {
 			builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -76,22 +80,68 @@ public class ContactManagerImpl implements ContactManager {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		NodeList contactNodes = doc.getElementsByTagName("contacts");
-		NodeList pastMeetingNodes = doc.getElementsByTagName("past_meetings");
-		NodeList futureMeetingNodes = doc.getElementsByTagName("future_meetings");
-		
-		for (int i = 0; i < contactNodes.getLength(); i ++){
-			// TODO this doesnt seem to be working at all. Cast to element?
+				
+		NodeList contactNodes = doc.getElementsByTagName("contact");
+		for (int i = 0; i < contactNodes.getLength(); i++){
 			Node currentNode = contactNodes.item(i);
-			NamedNodeMap nodes = currentNode.getAttributes();
-			String id = nodes.getNamedItem("id").getNodeValue(); //null ptr exception here
-			String name = nodes.getNamedItem("name").getNodeValue();
-			String notes = nodes.getNamedItem("notes").getNodeValue();
-			System.out.println(id + ", " + name + ", " + notes);
+			NamedNodeMap attributes = currentNode.getAttributes();
+			String id = attributes.getNamedItem("id").getNodeValue();
+			String name = attributes.getNamedItem("name").getNodeValue();
+			String notes = attributes.getNamedItem("notes").getNodeValue();
+			contacts.add(new ContactImpl(Integer.parseInt(id), name, notes));
+			currentContactId++;
+			//System.out.println(id + ", " + name + ", " + notes);
 		}
 		
-		return false;
+		NodeList pastMeetingNodes = doc.getElementsByTagName("past_meeting");
+		for (int i = 0; i < pastMeetingNodes.getLength(); i++){
+			Node currentNode = pastMeetingNodes.item(i);
+			NamedNodeMap attributes = currentNode.getAttributes();
+			
+			String id = attributes.getNamedItem("id").getNodeValue();
+			
+			String dateInMs = attributes.getNamedItem("date").getNodeValue();
+			Calendar date = Calendar.getInstance();
+			date.setTimeInMillis(Long.parseLong(dateInMs));
+			
+			String[] contactList = attributes.getNamedItem("contact_id_list")
+					.getNodeValue().split(", ");
+			int[] contactIdList = new int[contactList.length];
+			for (int j = 0; j < contactList.length; j++){
+				contactIdList[j] = Integer.parseInt(contactList[j]);	
+			}
+	
+			String notes = attributes.getNamedItem("notes").getNodeValue();
+			
+			pastMeetings.add(new PastMeetingImpl(Integer.parseInt(id), date, 
+					getContacts(contactIdList), notes));
+			currentMeetingId++;
+		}
+		
+		NodeList futureMeetingNodes = doc.getElementsByTagName("future_meeting");
+		for (int i = 0; i < futureMeetingNodes.getLength(); i++){
+			Node currentNode = futureMeetingNodes.item(i);
+			NamedNodeMap attributes = currentNode.getAttributes();
+			
+			String id = attributes.getNamedItem("id").getNodeValue();
+			
+			String dateInMs = attributes.getNamedItem("date").getNodeValue();
+			Calendar date = Calendar.getInstance();
+			date.setTimeInMillis(Long.parseLong(dateInMs));
+			
+			String[] contactList = attributes.getNamedItem("contact_id_list")
+					.getNodeValue().split(", ");
+			int[] contactIdList = new int[contactList.length];
+			for (int j = 0; j < contactList.length; j++){
+				contactIdList[j] = Integer.parseInt(contactList[j]);	
+			}
+				
+			futureMeetings.add(new FutureMeetingImpl(Integer.parseInt(id), date, 
+					getContacts(contactIdList)));
+			currentMeetingId++;
+		}
+		
+		return true;
 	}
 
 	@Override
@@ -163,13 +213,10 @@ public class ContactManagerImpl implements ContactManager {
 			throw new IllegalArgumentException("Contact does not exist!");
 		List<Meeting> meetings = new LinkedList<Meeting>();
 		
-		for (Meeting meeting : futureMeetings){
-			for (Contact member : meeting.getContacts()){
-				if (member.getId() == contact.getId()){
+		for (Meeting meeting : futureMeetings)
+			for (Contact member : meeting.getContacts())
+				if (member.getId() == contact.getId())
 					meetings.add(meeting);
-				}
-			}
-		}
 		
 		return meetings.stream()
 				.sorted((meeting, nextMeeting) -> meeting.getDate().compareTo(nextMeeting.getDate()))
@@ -343,7 +390,7 @@ public class ContactManagerImpl implements ContactManager {
 			for (Contact contact : meeting.getContacts()){
 				contactList += contact.getId() + ", ";
 			}
-			contactList.substring(0, contactList.length() - 2);
+			contactList = contactList.substring(0, contactList.length() - 2);
 			pastMeetingElem.setAttribute("contact_id_list", contactList);			
 		}
 		
@@ -360,7 +407,7 @@ public class ContactManagerImpl implements ContactManager {
 			for (Contact contact : meeting.getContacts()){
 				contactList += contact.getId() + ", ";
 			}
-			contactList.substring(0, contactList.length() - 2);
+			contactList = contactList.substring(0, contactList.length() - 2);
 			futureMeetingElem.setAttribute("contact_id_list", contactList);			
 		}
 		
