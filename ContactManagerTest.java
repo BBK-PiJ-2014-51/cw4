@@ -1,13 +1,16 @@
 import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
 import java.time.Month;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 /**
  * Contact Manager Tests
@@ -690,6 +693,71 @@ public class ContactManagerTest {
 		}
 		
 		assertEquals(true, meetingsPresent && hasChecked == numMeetings);
+	}
+	
+	/*
+	 * Single test which tests sample execution of a program 
+	 */
+	@Test
+	public void comprehensiveTest(){
+		int numMeetings = 6;
+		//add some contacts
+		loadTestContacts();
+		Set<Contact> contactList = getContactList(TestContacts.values().length);
+		
+		//add some future meetings
+		
+		for (int i = 0; i < numMeetings; i ++){
+			Calendar futureDate = Calendar.getInstance();
+			futureDate.add(Calendar.DAY_OF_YEAR, i + 32);
+			Set<Contact> contacts = new HashSet<Contact>();
+			for (Contact contact : contactList){
+				if (contact.getId() != i){
+					contacts.add(contact);
+				}
+			}
+			cm.addFutureMeeting(contacts, futureDate);
+		}
+		//add some past meetings
+		for (int i = 0; i < numMeetings; i ++){
+			Calendar pastDate = Calendar.getInstance();
+			pastDate.add(Calendar.DAY_OF_YEAR, i - 37);
+			Set<Contact> contacts = new HashSet<Contact>();
+			for (Contact contact : contactList){
+				if (contact.getId() != i){
+					contacts.add(contact);
+				}
+			}
+			cm.addNewPastMeeting(contacts, pastDate, i + ": " + TEST_MEETING_NOTES);
+		}
+		
+		//add notes to past meetings
+		cm.addMeetingNotes(numMeetings + 3, "Here are some additional meeting notes");
+		cm.addMeetingNotes(numMeetings + 4, "And here are some additional meeting notes");
+		cm.addMeetingNotes(numMeetings + 4, "Yet here are even more meeting notes");
+		
+		// add note to future meeting
+		Calendar now = Calendar.getInstance();
+		now.add(Calendar.MILLISECOND, 10); //add a meeting slightly in the future
+		int futureMeetingId = cm.addFutureMeeting(contactList, now);
+		try {
+			Thread.sleep(20); //wait a bit longer
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		cm.addMeetingNotes(futureMeetingId, TEST_MEETING_NOTES);
+		PastMeeting pastMeetingId = cm.getPastMeeting(futureMeetingId);
+		
+		cm.flush();
+		cm = new ContactManagerImpl();
+		cm.flush();
+		cm = new ContactManagerImpl();
+		
+		cm.addNewPastMeeting(contactList, PAST_TEST_DATE, "final notes");
+		int returnedId = cm.addFutureMeeting(contactList, FUTURE_TEST_DATE);
+		
+		cm.flush();
+		assertEquals(14, returnedId);
 	}
 	
 	/*
